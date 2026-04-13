@@ -166,7 +166,7 @@ function inlineMath(_options: unknown) {
 function blockMath(_options: unknown) {
 	return {
 		name: 'blockMath',
-		level: 'block',
+		level: 'inline',
 		start(src: string) {
 			return mathStart(src, true);
 		},
