@@ -243,10 +243,6 @@ select {
 	animation: smoothFadeIn 0.2s forwards;
 }
 
-.katex-mathml {
-	display: none;
-}
-
 .scrollbar-hidden:active::-webkit-scrollbar-thumb,
 .scrollbar-hidden:focus::-webkit-scrollbar-thumb,
 .scrollbar-hidden:hover::-webkit-scrollbar-thumb {
@@ -284,25 +280,25 @@ input[type='number'] {
 	-moz-appearance: textfield; /* Firefox */
 }
 
-.katex-display {
+.math-display {
 	@apply overflow-y-hidden overflow-x-auto max-w-full;
 }
 
-.katex-display::-webkit-scrollbar {
+.math-display::-webkit-scrollbar {
 	height: 0.4rem;
 	width: 0.4rem;
 }
 
-.katex-display:active::-webkit-scrollbar-thumb,
-.katex-display:focus::-webkit-scrollbar-thumb,
-.katex-display:hover::-webkit-scrollbar-thumb {
+.math-display:active::-webkit-scrollbar-thumb,
+.math-display:focus::-webkit-scrollbar-thumb,
+.math-display:hover::-webkit-scrollbar-thumb {
 	visibility: visible;
 }
-.katex-display::-webkit-scrollbar-thumb {
+.math-display::-webkit-scrollbar-thumb {
 	visibility: hidden;
 }
 
-.katex-display::-webkit-scrollbar-corner {
+.math-display::-webkit-scrollbar-corner {
 	display: none;
 }
 

@@ -20,8 +20,8 @@ import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.mjs?url';
 
 import { marked } from 'marked';
 import markedExtension from '$lib/utils/marked/extension';
-import markedKatexExtension from '$lib/utils/marked/katex-extension';
 import hljs from 'highlight.js';
+import mathExtension from '$lib/utils/marked/math-extension';
 
 //////////////////////////
 // Helper functions
@@ -428,7 +428,7 @@ export const copyToClipboard = async (text, html = null, formatted = false) => {
 					return hljs.highlight(code, { language }).value;
 				}
 			};
-			marked.use(markedKatexExtension(options));
+			marked.use(mathExtension(options));
 			marked.use(markedExtension(options));
 			// DEVELOPER NOTE: Go to `$lib/components/chat/Messages/Markdown.svelte` to add extra markdown extensions for rendering.
 
