@@ -33,23 +33,21 @@ function escapeRegex(string: string) {
 function generateRegexRules(delimiters: typeof DELIMITER_LIST) {
 	delimiters.forEach((delimiter) => {
 		const { left, right, display } = delimiter;
-		// Ensure regex-safe delimiters
 		const escapedLeft = escapeRegex(left);
 		const escapedRight = escapeRegex(right);
 
 		if (!display) {
-			// For inline delimiters, we match everything
+			// Inline delimiters: stay as they are
 			inlinePatterns.push(`${escapedLeft}((?:\\\\[^]|[^\\\\])+?)${escapedRight}`);
 		} else {
-			// Block delimiters doubles as inline delimiters when not followed by a newline
-			inlinePatterns.push(
-				`${escapedLeft}(?!\\n)((?:\\\\[^]|[^\\\\])+?)(?!\\n)${escapedRight}`
-			);
-			blockPatterns.push(`${escapedLeft}\\n((?:\\\\[^]|[^\\\\])+?)\\n${escapedRight}`);
+			// Block delimiters:
+			// We change this to be "greedy" across multiple lines [\s\S]+?
+			// and we remove the strict \n requirement.
+			blockPatterns.push(`${escapedLeft}\s*([\s\S]+?)\s*${escapedRight}`);
 		}
 	});
 
-	// Math formulas can end in special characters
+	// Use the 'm' flag implicitly by using [\s\S] to match across newlines
 	const inlineRule = new RegExp(
 		`^(${inlinePatterns.join('|')})(?=[${ALLOWED_SURROUNDING_CHARS}]|$)`,
 		'u'
