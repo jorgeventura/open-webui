@@ -50,7 +50,8 @@
                   displayMath: [['$$', '$$'], ['\\[', '\\]']],
                   // This prevents the '#' error by telling MathJax
                   // to treat unexpected characters more gracefully
-                  processEscapes: true
+                  processEscapes: true,
+                  packages: {'[+]': ['ams', 'noerrors', 'noundefined']}
               },
               svg: {
                   // CRITICAL: Changed from 'global' to 'local'

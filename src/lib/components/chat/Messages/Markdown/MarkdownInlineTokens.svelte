@@ -107,7 +107,7 @@
 		<br />
 	{:else if token.type === 'del'}
 		<del><svelte:self id={`${id}-del`} tokens={token.tokens} {onSourceClick} /></del>
-	{:else if token.type === 'inlineMath'}
+	{:else if token.type === 'inlineMath' || token.type === 'blockMath'}
 		{#if token.text}
 			<MathRenderer content={token.text} displayMode={token.displayMode} />
 		{/if}

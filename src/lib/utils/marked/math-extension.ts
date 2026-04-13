@@ -141,23 +141,21 @@ function blockMath(_options: unknown) {
 	};
 }
 
-// Inside mathTokenizer, ensure 'type' matches exactly:
-function mathTokenizer(this: unknown, src: string, displayMode: boolean): MathToken | undefined {
+function mathTokenizer(this: any, src: string, displayMode: boolean): MathToken | undefined {
 	const ruleReg = displayMode ? blockRule : inlineRule;
-	const type: MathToken['type'] = displayMode ? 'blockMath' : 'inlineMath';
-
 	const match = src.match(ruleReg);
+
 	if (match) {
-		console.log(`[Math Parser] Found ${type}:`, match[0]);
-		const text = match
-			.slice(2)
-			.filter((item) => item)
-			.find((item) => item.trim());
+		// match[0] is the whole string " $$ ... $$ "
+		// match[1] is the delimiter " $$ "
+		// match[2] is the actual LaTeX content
+		const raw = match[0];
+		const content = match[2];
 
 		return {
-			type,
-			raw: match[0],
-			text: text || '',
+			type: displayMode ? 'blockMath' : 'inlineMath',
+			raw: raw,
+			text: content.trim(), // Clean the content, but keep the LaTeX structure
 			displayMode
 		};
 	}
