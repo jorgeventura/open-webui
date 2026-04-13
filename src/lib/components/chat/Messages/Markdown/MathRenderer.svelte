@@ -74,7 +74,7 @@
     /* Fix for block equations overflow */
 	:global(.math-display) {
 		display: flex;
-		justify-content: center;
+		justify-content: left;
 		margin: 1rem 0;
         width: 100%;
 	}
