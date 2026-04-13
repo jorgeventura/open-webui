@@ -20,9 +20,9 @@ import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.mjs?url';
 
 import { marked } from 'marked';
 import markedExtension from '$lib/utils/marked/extension';
-import markedKatexExtension from '$lib/utils/marked/katex-extension';
 import hljs from 'highlight.js';
 import { decode } from 'html-entities';
+import mathExtension from '$lib/utils/marked/math-extension';
 
 //////////////////////////
 // Helper functions
@@ -47,7 +47,9 @@ export const replaceOutsideCode = (content: string, replacer: (str: string) => s
 	return content
 		.split(/(```[\s\S]*?```|`[\s\S]*?`)/)
 		.map((segment) => {
-			return segment.startsWith('```') || segment.startsWith('`') ? segment : replacer(segment);
+			return segment.startsWith('```') || segment.startsWith('`')
+				? segment
+				: replacer(segment);
 		})
 		.join('');
 };
@@ -158,7 +160,10 @@ function processChineseDelimiters(
 	);
 	return line.replace(regex, (match, l, left, content, right, r) => {
 		const result =
-			(content.startsWith(leftSymbol) && l && l.length > 0 && isChineseChar(l[l.length - 1])) ||
+			(content.startsWith(leftSymbol) &&
+				l &&
+				l.length > 0 &&
+				isChineseChar(l[l.length - 1])) ||
 			(content.endsWith(rightSymbol) && r && r.length > 0 && isChineseChar(r[0]));
 
 		if (result) {
@@ -430,7 +435,7 @@ export const copyToClipboard = async (text, html = null, formatted = false) => {
 					return hljs.highlight(code, { language }).value;
 				}
 			};
-			marked.use(markedKatexExtension(options));
+			marked.use(mathExtension(options));
 			marked.use(markedExtension(options));
 			// DEVELOPER NOTE: Go to `$lib/components/chat/Messages/Markdown.svelte` to add extra markdown extensions for rendering.
 
@@ -730,7 +735,8 @@ const convertOpenAIMessages = (convo) => {
 					id: message_id,
 					parentId: lastId,
 					childrenIds: message['children'] || [],
-					role: message['message']?.['author']?.['role'] !== 'user' ? 'assistant' : 'user',
+					role:
+						message['message']?.['author']?.['role'] !== 'user' ? 'assistant' : 'user',
 					content:
 						message['message']?.['content']?.['parts']?.[0] ||
 						message['message']?.['content']?.['text'] ||
@@ -929,7 +935,9 @@ export const processDetails = (content) => {
 				resultText = unescapeHtml(attributes.result);
 			} else {
 				// Extract body content (strip <summary>...</summary>)
-				const bodyMatch = match.match(/<summary>[\s\S]*?<\/summary>\s*([\s\S]*?)\s*<\/details>/i);
+				const bodyMatch = match.match(
+					/<summary>[\s\S]*?<\/summary>\s*([\s\S]*?)\s*<\/details>/i
+				);
 				if (bodyMatch && bodyMatch[1].trim()) {
 					resultText = unescapeHtml(bodyMatch[1].trim());
 				}
@@ -1349,7 +1357,8 @@ export const convertOpenApiToToolPayload = (openApiSpec) => {
 			if (operation?.operationId) {
 				const tool = {
 					name: operation.operationId,
-					description: operation.description || operation.summary || 'No description available.',
+					description:
+						operation.description || operation.summary || 'No description available.',
 					parameters: {
 						type: 'object',
 						properties: {},
@@ -1383,7 +1392,10 @@ export const convertOpenApiToToolPayload = (openApiSpec) => {
 					const content = operation.requestBody.content;
 					if (content && content['application/json']) {
 						const requestSchema = content['application/json'].schema;
-						const resolvedRequestSchema = resolveSchema(requestSchema, openApiSpec.components);
+						const resolvedRequestSchema = resolveSchema(
+							requestSchema,
+							openApiSpec.components
+						);
 
 						if (resolvedRequestSchema.properties) {
 							tool.parameters.properties = {
@@ -1393,7 +1405,10 @@ export const convertOpenApiToToolPayload = (openApiSpec) => {
 
 							if (resolvedRequestSchema.required) {
 								tool.parameters.required = [
-									...new Set([...tool.parameters.required, ...resolvedRequestSchema.required])
+									...new Set([
+										...tool.parameters.required,
+										...resolvedRequestSchema.required
+									])
 								];
 							}
 						} else if (resolvedRequestSchema.type === 'array') {

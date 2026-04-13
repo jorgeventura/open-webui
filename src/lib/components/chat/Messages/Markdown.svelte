@@ -5,7 +5,7 @@
 	import { user } from '$lib/stores';
 
 	import markedExtension from '$lib/utils/marked/extension';
-	import markedKatexExtension from '$lib/utils/marked/katex-extension';
+	import mathExtension from '$lib/utils/marked/math-extension';
 	import { disableSingleTilde } from '$lib/utils/marked/strikethrough-extension';
 	import { mentionExtension } from '$lib/utils/marked/mention-extension';
 	import colonFenceExtension from '$lib/utils/marked/colon-fence-extension';
@@ -45,7 +45,7 @@
 		breaks: true
 	};
 
-	marked.use(markedKatexExtension(options));
+	marked.use(mathExtension(options));
 	marked.use(markedExtension(options));
 	marked.use(citationExtension(options));
 	marked.use(footnoteExtension(options));

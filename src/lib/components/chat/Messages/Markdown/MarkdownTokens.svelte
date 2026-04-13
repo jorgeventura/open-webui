@@ -14,7 +14,7 @@
 
 	import CodeBlock from '$lib/components/chat/Messages/CodeBlock.svelte';
 	import MarkdownInlineTokens from '$lib/components/chat/Messages/Markdown/MarkdownInlineTokens.svelte';
-	import KatexRenderer from './KatexRenderer.svelte';
+	import MathRenderer from './MathRenderer.svelte';
 	import AlertRenderer, { alertComponent } from './AlertRenderer.svelte';
 	import Collapsible from '$lib/components/common/Collapsible.svelte';
 	import ToolCallDisplay from '$lib/components/common/ToolCallDisplay.svelte';
@@ -529,13 +529,13 @@
 		{:else}
 			{unescapeHtml(token.text)}
 		{/if}
-	{:else if token.type === 'inlineKatex'}
+	{:else if token.type === 'inlineMath'}
 		{#if token.text}
-			<KatexRenderer content={token.text} displayMode={token?.displayMode ?? false} />
+			<MathRenderer content={token.text} displayMode={token?.displayMode ?? false} />
 		{/if}
-	{:else if token.type === 'blockKatex'}
+	{:else if token.type === 'blockMath'}
 		{#if token.text}
-			<KatexRenderer content={token.text} displayMode={token?.displayMode ?? false} />
+			<MathRenderer content={token.text} displayMode={token?.displayMode ?? false} />
 		{/if}
 	{:else if token.type === 'colonFence'}
 		<ColonFenceBlock

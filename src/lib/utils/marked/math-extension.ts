@@ -13,10 +13,6 @@ const ALLOWED_SURROUNDING_CHARS =
 	'\\s。，、､;；„“‘’“”（）「」『』［］《》【】‹›«»…⋯:：？！～⇒?!-\\/:-@\\[-`{-~\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\p{Script=Hangul}';
 // Modified to fit more formats in different languages. Originally: '\\s?。，、；!-\\/:-@\\[-`{-~\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\p{Script=Hangul}';
 
-// Pre-compile the surrounding character regex once at module load time.
-// This regex uses Unicode property escapes (\p{Script=Han}, etc.) which are
-// extremely expensive to compile - doing so on every call caused ~87% of
-// markdown rendering time to be spent in KaTeX regex compilation.
 const ALLOWED_SURROUNDING_CHARS_REGEX = new RegExp(`[${ALLOWED_SURROUNDING_CHARS}]`, 'u');
 
 // const DELIMITER_LIST = [
@@ -27,14 +23,14 @@ const ALLOWED_SURROUNDING_CHARS_REGEX = new RegExp(`[${ALLOWED_SURROUNDING_CHARS
 // const inlineRule = /^(\${1,2})(?!\$)((?:\\.|[^\\\n])*?(?:\\.|[^\\\n\$]))\1(?=[\s?!\.,:？！。，：]|$)/;
 // const blockRule = /^(\${1,2})\n((?:\\[^]|[^\\])+?)\n\1(?:\n|$)/;
 
-const inlinePatterns = [];
-const blockPatterns = [];
+const inlinePatterns: string[] = [];
+const blockPatterns: string[] = [];
 
-function escapeRegex(string) {
-	return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+function escapeRegex(string: string) {
+	return string.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
-function generateRegexRules(delimiters) {
+function generateRegexRules(delimiters: typeof DELIMITER_LIST) {
 	delimiters.forEach((delimiter) => {
 		const { left, right, display } = delimiter;
 		// Ensure regex-safe delimiters
@@ -46,7 +42,9 @@ function generateRegexRules(delimiters) {
 			inlinePatterns.push(`${escapedLeft}((?:\\\\[^]|[^\\\\])+?)${escapedRight}`);
 		} else {
 			// Block delimiters doubles as inline delimiters when not followed by a newline
-			inlinePatterns.push(`${escapedLeft}(?!\\n)((?:\\\\[^]|[^\\\\])+?)(?!\\n)${escapedRight}`);
+			inlinePatterns.push(
+				`${escapedLeft}(?!\\n)((?:\\\\[^]|[^\\\\])+?)(?!\\n)${escapedRight}`
+			);
 			blockPatterns.push(`${escapedLeft}\\n((?:\\\\[^]|[^\\\\])+?)\\n${escapedRight}`);
 		}
 	});
@@ -106,11 +104,11 @@ export const tokenizeDisplayMath = (
 
 export default function (options = {}) {
 	return {
-		extensions: [inlineKatex(options), blockKatex(options)]
+		extensions: [inlineMath(options), blockMath(options)]
 	};
 }
 
-function katexStart(src, displayMode: boolean) {
+function mathStart(src: string, displayMode: boolean) {
 	for (let i = 0; i < src.length; i++) {
 		const ch = src.charCodeAt(i);
 
@@ -139,24 +137,58 @@ function katexStart(src, displayMode: boolean) {
 	}
 }
 
-function katexTokenizer(src, tokens, displayMode: boolean) {
-	if (src.startsWith('$$')) {
-		const displayToken = tokenizeDisplayMath(
-			src,
-			displayMode ? 'blockKatex' : 'inlineKatex',
-			displayMode
-		);
-		if (displayToken) {
-			return displayToken;
-		}
-	}
+// Define the shape of our math token
+interface MathToken {
+	type: 'inlineMath' | 'blockMath';
+	raw: string;
+	text: string;
+	displayMode: boolean;
+}
 
+// ... (keep DELIMITER_LIST and patterns)
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function inlineMath(_options: unknown) {
+	return {
+		name: 'inlineMath',
+		level: 'inline',
+		start(src: string) {
+			return mathStart(src, false);
+		},
+		tokenizer(src: string): MathToken | undefined {
+			return mathTokenizer.call(this, src, false);
+		},
+		renderer(token: MathToken) {
+			return token.raw; // TypeScript is happy now
+		}
+	};
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function blockMath(_options: unknown) {
+	return {
+		name: 'blockMath',
+		level: 'block',
+		start(src: string) {
+			return mathStart(src, true);
+		},
+		tokenizer(src: string): MathToken | undefined {
+			return mathTokenizer.call(this, src, true);
+		},
+		renderer(token: MathToken) {
+			return token.raw;
+		}
+	};
+}
+
+// Inside mathTokenizer, ensure 'type' matches exactly:
+function mathTokenizer(this: unknown, src: string, displayMode: boolean): MathToken | undefined {
 	const ruleReg = displayMode ? blockRule : inlineRule;
-	const type = displayMode ? 'blockKatex' : 'inlineKatex';
+	const type: MathToken['type'] = displayMode ? 'blockMath' : 'inlineMath';
 
 	const match = src.match(ruleReg);
-
 	if (match) {
+		console.log(`[Math Parser] Found ${type}:`, match[0]);
 		const text = match
 			.slice(2)
 			.filter((item) => item)
@@ -165,40 +197,8 @@ function katexTokenizer(src, tokens, displayMode: boolean) {
 		return {
 			type,
 			raw: match[0],
-			text: text,
+			text: text || '',
 			displayMode
 		};
 	}
-}
-
-function inlineKatex(options) {
-	return {
-		name: 'inlineKatex',
-		level: 'inline',
-		start(src) {
-			return katexStart(src, false);
-		},
-		tokenizer(src, tokens) {
-			return katexTokenizer(src, tokens, false);
-		},
-		renderer(token) {
-			return `${token?.text ?? ''}`;
-		}
-	};
-}
-
-function blockKatex(options) {
-	return {
-		name: 'blockKatex',
-		level: 'block',
-		start(src) {
-			return katexStart(src, true);
-		},
-		tokenizer(src, tokens) {
-			return katexTokenizer(src, tokens, true);
-		},
-		renderer(token) {
-			return `${token?.text ?? ''}`;
-		}
-	};
 }
