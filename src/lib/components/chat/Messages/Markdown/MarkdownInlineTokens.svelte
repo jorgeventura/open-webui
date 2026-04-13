@@ -109,7 +109,7 @@
 		<del><svelte:self id={`${id}-del`} tokens={token.tokens} {onSourceClick} /></del>
 	{:else if token.type === 'inlineMath'}
 		{#if token.text}
-			<MathRenderer content={token.text} displayMode={false} />
+			<MathRenderer content={token.text} displayMode={token.displayMode} />
 		{/if}
 	{:else if token.type === 'iframe'}
 		<iframe
