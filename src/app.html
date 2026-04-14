@@ -39,32 +39,36 @@
 				obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
 			}
 		</script>
+		<script>
+			window.global = window;
+			window.__dirname = '';
 
-      <script>
-          window.global = window;
-          window.__dirname = "";
-
-          window.MathJax = {
-              tex: {
-                  inlineMath: [['$', '$'], ['\\(', '\\)']],
-                  displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                  // This prevents the '#' error by telling MathJax
-                  // to treat unexpected characters more gracefully
-                  processEscapes: true,
-                  packages: {'[+]': ['ams', 'noerrors', 'noundefined']}
-              },
-              svg: {
-                  // CRITICAL: Changed from 'global' to 'local'
-                  // This fixes the "black boxes" in dynamic apps
-                  fontCache: 'local',
-                  idPrefix: 'mjx-blk'
-              },
-              startup: {
-                  typeset: false
-              }
-          };
-      </script>
-
+			window.MathJax = {
+				tex: {
+					inlineMath: [
+						['$', '$'],
+						['\\(', '\\)']
+					],
+					displayMath: [
+						['$$', '$$'],
+						['\\[', '\\]']
+					],
+					// This prevents the '#' error by telling MathJax
+					// to treat unexpected characters more gracefully
+					processEscapes: true,
+					packages: { '[+]': ['mhchem', 'ams', 'noerrors', 'noundefined'] }
+				},
+				svg: {
+					// CRITICAL: Changed from 'global' to 'local'
+					// This fixes the "black boxes" in dynamic apps
+					fontCache: 'local',
+					idPrefix: 'mjx-blk'
+				},
+				startup: {
+					typeset: false
+				}
+			};
+		</script>
 
 		<script>
 			// On page load or when changing themes, best to add inline in `head` to avoid FOUC

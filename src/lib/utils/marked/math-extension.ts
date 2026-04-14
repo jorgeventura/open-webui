@@ -141,28 +141,8 @@ function blockMath(_options: unknown) {
 	};
 }
 
-//function mathTokenizer(this: any, src: string, displayMode: boolean): MathToken | undefined {
-//	const ruleReg = displayMode ? blockRule : inlineRule;
-//	const match = src.match(ruleReg);
-//
-//	if (match) {
-//		// match[0] is the whole string " $$ ... $$ "
-//		// match[1] is the delimiter " $$ "
-//		// match[2] is the actual LaTeX content
-//		const raw = match[0];
-//		const content = match[2];
-//
-//		return {
-//			type: displayMode ? 'blockMath' : 'inlineMath',
-//			raw: raw,
-//			text: content.trim(), // Clean the content, but keep the LaTeX structure
-//			displayMode
-//		};
-//	}
-//}
-
 function mathTokenizer(this: any, src: string, displayMode: boolean): MathToken | undefined {
-	// 1. Define the Regex for Block (display) vs Inline
+	// 2. Define the Regex for Block (display) vs Inline
 	// The Block regex MUST be checked first, or the Inline regex will "steal" the first $
 	const blockMatch = src.match(/^\$\$([\s\S]*?)\$\$/);
 	const inlineMatch = src.match(/^\$((?:\\.|[^\\])+?)\$/);
